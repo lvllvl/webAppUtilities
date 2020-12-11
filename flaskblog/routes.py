@@ -1,8 +1,8 @@
-from flask import render_template, url_for, flash, redirect
+from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt 
-from flaskblog.forms import RegistrationForm, LoginForm
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from flaskblog.models import User, Post
-from flask_login import login_user, current_user, logout_user
+from flask_login import login_user, current_user, logout_user, login_required
 
 # TODO: delete this posts data structure 
 posts = [
@@ -55,9 +55,12 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by( email = form.email.data ).first() 
         if user and bcrypt.check_password_hash( user.password, form.password.data ): 
-            # if user exist and pw is valid 
+            # if user exists and pw is valid 
             login_user( user, remember= form.remember.data )
-            return redirect( url_for( 'home' )) 
+            # when user clicks link for logged-in users, then logs in, then redirects back to
+            # original link they clicked
+            next_page = request.args.get('next') 
+            return redirect( next_page ) if next_page else redirect( url_for( 'home' )) 
         else: 
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -68,3 +71,11 @@ def logout():
     logout_user() 
     
     return redirect(url_for('home'))
+
+
+@app.route("/account")
+@login_required
+def account():
+
+    image_file = url_for( 'static', filename='profile_pics/' + current_user.image_file )
+    return render_template('account.html', title='Account', image_file= image_file )
