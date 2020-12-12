@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flaskblog.models import User
 
@@ -58,6 +58,25 @@ class UpdateAccountForm(FlaskForm):
 
 class PostForm( FlaskForm ): 
 
-    title = StringField( 'Title', validators=[ DataRequired() ] )
-    content = TextAreaField( 'Content' , validators=[ DataRequired() ] ) 
-    submit = SubmitField( 'Post' )
+    addressNo = IntegerField( label='Address Number', validators=[ DataRequired() ] ) 
+    streetName = StringField( label='Street Name', validators=[ DataRequired() ] )
+    zipCode = IntegerField( label='Zip Code', validators=[ DataRequired() ] )
+    apartmentNo = StringField( label='Apartment Number, ( n/a if not applicable ) ', validators=[ DataRequired() ] )
+
+
+ #     title = StringField( 'Address', validators=[ DataRequired() ] )
+    state = SelectField( 'State', choices = [ 'Alabama', 'Alaska', 'Arizona', 
+                         'Arkansas', 'California', 'Colorado', 'Connecticut', 
+                         'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
+                         'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 
+                         'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 
+                         'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 
+                         'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
+                         'New Jersey', 'New Mexico', 'New York', 'North Carolina', 
+                         'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+                         'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 
+                         'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 
+                         'Wisconsin', 'Wyoming' ], validate_choice=True 
+                         )
+
+    submit = SubmitField( 'Save' )

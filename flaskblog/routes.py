@@ -91,6 +91,7 @@ def account():
     elif request.method =='GET': 
         form.username.data = current_user.username
         form.email.data = current_user.email
+
     image_file = url_for( 'static', filename='profile_pics/' + current_user.image_file )
     return render_template('account.html', title='Account', image_file= image_file, form=form )
 
@@ -104,6 +105,7 @@ def new_post():
         post = Post( title = form.title.data, content = form.content.data, author = current_user ) 
         db.session.add( post ) # add to database 
         db.session.commit() 
-        flash( 'Your post has been created!' , 'success' ) 
+        flash( 'A new property has been added to your account!' , 'success' ) 
         return redirect( url_for( 'home' ) )
-    return render_template('create_post.html', title='New Post', form = form  )
+
+    return render_template('create_post.html', title='Add Property', form = form  )
