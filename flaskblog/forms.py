@@ -56,15 +56,13 @@ class UpdateAccountForm(FlaskForm):
             if email: 
                 raise ValidationError( 'That email is taken. Please choose a different one.' ) 
 
-class PostForm( FlaskForm ): 
+class PropertyForm( FlaskForm ): 
 
     addressNo = IntegerField( label='Address Number', validators=[ DataRequired() ] ) 
     streetName = StringField( label='Street Name', validators=[ DataRequired() ] )
     zipCode = IntegerField( label='Zip Code', validators=[ DataRequired() ] )
     apartmentNo = StringField( label='Apartment Number, ( n/a if not applicable ) ', validators=[ DataRequired() ] )
 
-
- #     title = StringField( 'Address', validators=[ DataRequired() ] )
     state = SelectField( 'State', choices = [ 'Alabama', 'Alaska', 'Arizona', 
                          'Arkansas', 'California', 'Colorado', 'Connecticut', 
                          'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 

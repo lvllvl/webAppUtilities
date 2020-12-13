@@ -25,12 +25,10 @@ class Properties( db.Model ):
     street = db.Column( db.String, nullable=False ) 
     apartment = db.Column( db.Integer, nullable=False ) 
     state = db.Column( db.String( 50 ), nullable = False ) 
-
-    # TODO what does this Foreign Key mean?
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     def __repr__(self):
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"Properties('{self.address + self.street}' )"
 
 class Tenant( db.Model ): 
 
@@ -42,6 +40,11 @@ class Tenant( db.Model ):
     moveIn_date = db.Column( db.DateTime, default=datetime.datetime.utcnow, nullable=False )
     moveOut_date = db.Column( db.DateTime, default=datetime.datetime.utcnow, nullable=True )
 
+    # TODO should this be a double instead of an integer????? 
+    phone_number = db.Column( db.Integer, nullable = False ) 
     # TODO --> is this foreign key formatted correctly?  
     property_address = db.Column( db.Integer, db.ForeignKey( 'property.id' ), nullable=False ) 
-    
+
+
+    def __repr__( self ): 
+        return f"Tenant( '{self.first_name + self.last_name}', '{sel.tenant_email}') '"
