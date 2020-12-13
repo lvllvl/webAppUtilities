@@ -18,13 +18,30 @@ class User( db.Model, UserMixin ):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
 
-class Post(db.Model):
+class Properties( db.Model ):
+
     id = db.Column( db.Integer, primary_key=True )
-    title = db.Column( db.Integer, nullable=False ) 
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    address = db.Column( db.Integer, nullable=False ) 
+    street = db.Column( db.String, nullable=False ) 
+    apartment = db.Column( db.Integer, nullable=False ) 
     state = db.Column( db.String( 50 ), nullable = False ) 
+
+    # TODO what does this Foreign Key mean?
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
+
+class Tenant( db.Model ): 
+
+    id = db.Column( db.Integer, primary_key=True )
+    first_name = db.Column( db.String, nullable=False )
+    last_name = db.Column( db.String, nullable=False )
+    tenant_email = db.Column( db.String, unique=True, nullable=False )
+    deposit_amount = db.Column( db.Integer, nullable=False )
+    moveIn_date = db.Column( db.DateTime, default=datetime.datetime.utcnow, nullable=False )
+    moveOut_date = db.Column( db.DateTime, default=datetime.datetime.utcnow, nullable=True )
+
+    # TODO --> is this foreign key formatted correctly?  
+    property_address = db.Column( db.Integer, db.ForeignKey( 'property.id' ), nullable=False ) 
+    

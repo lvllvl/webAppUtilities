@@ -102,10 +102,16 @@ def new_post():
     form = PostForm()
 
     if form.validate_on_submit():
-        post = Post( title = form.title.data, content = form.content.data, author = current_user ) 
+        post = Post( content = form.content.data, author = current_user ) 
         db.session.add( post ) # add to database 
         db.session.commit() 
         flash( 'A new property has been added to your account!' , 'success' ) 
         return redirect( url_for( 'home' ) )
+
+        # id = db.Column( db.Integer, primary_key=True )
+        # address = db.Column( db.Integer, nullable=False ) 
+        # date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+        # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+        # state = db.Column( db.String( 50 ), nullable = False ) 
 
     return render_template('create_post.html', title='Add Property', form = form  )
