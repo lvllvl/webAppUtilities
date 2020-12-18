@@ -64,19 +64,19 @@ class PropertyForm( FlaskForm ):
     apartmentNo = StringField( label='Apartment Number, ( n/a if not applicable ) ', validators=[ DataRequired() ] )
 
     # TODO --> do you even need this feature?
-    state = SelectField( 'State', choices = [ 'Alabama', 'Alaska', 'Arizona', 
-                         'Arkansas', 'California', 'Colorado', 'Connecticut', 
-                         'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
-                         'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 
-                         'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 
-                         'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 
-                         'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
-                         'New Jersey', 'New Mexico', 'New York', 'North Carolina', 
-                         'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
-                         'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 
-                         'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 
-                         'Wisconsin', 'Wyoming' ], validate_choice=True 
-                         )
+    # state = SelectField( 'State', choices = [ 'Alabama', 'Alaska', 'Arizona', 
+    #                      'Arkansas', 'California', 'Colorado', 'Connecticut', 
+    #                      'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
+    #                      'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 
+    #                      'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 
+    #                      'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 
+    #                      'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
+    #                      'New Jersey', 'New Mexico', 'New York', 'North Carolina', 
+    #                      'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+    #                      'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 
+    #                      'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 
+    #                      'Wisconsin', 'Wyoming' ], validate_choice=True 
+    #                      )
 
     submit = SubmitField( 'Save' )
 
@@ -87,16 +87,15 @@ def choice_query():
 class TenantForm( FlaskForm ): 
 
     # address will be imported from Property information ... can be left blank 
-    lives_at = QuerySelectField( query_factory= choice_query , allow_blank = True, get_label= 'address' ) 
-    email = StringField( label = 'Email', validators=[ DataRequired() ] ) 
+    property_address = QuerySelectField( query_factory= choice_query , allow_blank = True, get_label= 'address' ) 
 
     first_name = StringField( label='First Name', validators=[ DataRequired() ])
     last_name = StringField( label='Last Name', validators=[ DataRequired() ])
-
+    email = StringField( label = 'Email', validators=[ DataRequired() ] ) 
+    deposit = IntegerField( label='Deposit Amount', validators=[ DataRequired() ])
+    moveIn_date = DateField('Move-In Date', default=date.today ) 
     phone_number = IntegerField( label='Phone number', validators=[ DataRequired() ])
 
-    moveIn_date = DateField('Move-In Date', default=date.today ) 
-    deposit = IntegerField( label = 'Deposit', validators=[ DataRequired() ] )
 
     submit = SubmitField( 'Save' ) 
 

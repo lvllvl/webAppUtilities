@@ -101,7 +101,11 @@ def add_new_property():
     form = PropertyForm()
 
     if form.validate_on_submit():
-        new_house = Properties( address = form.address, apartment=form.apartmentNo, state=form.state ) 
+        new_house = Properties( address = form.address.data, apartment=form.apartmentNo.data, author=current_user ) 
+
+        # TODO delete this! 
+        print( 'print statement', new_house.address, new_house.user_id ) 
+
         db.session.add( new_house )  
         db.session.commit() # add to database
         flash( 'A new property has been added to your account!' , 'success' ) 
@@ -120,9 +124,10 @@ def add_tenant():
         new_person = Tenant( first_name = new_tenant.first_name,
                              last_name = new_tenant.last_name, 
                              email= new_tenant.email,
+                             deposit = new_tenant.deposit,
                              moveIn_date = new_tenant.moveIn_date, 
                              phone_number= new_tenant.phone_number,
-                             property_address = new_tenant.lives_at
+                             property_address = new_tenant.property_address
                              )
         db.session.add( new_person ) 
         db.session.commit() 

@@ -26,13 +26,12 @@ class User( db.Model, UserMixin ):
 class Properties( db.Model ):
 
     property_id = db.Column( db.Integer, primary_key=True )
+    address = db.Column( db.String, nullable = False ) 
+    apartment = db.Column( db.String, nullable=False ) 
+    # state = db.Column( db.String( 50 ), nullable = False ) 
 
     # TODO do we need landlord_id if we have backref?? 
-    landlord_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
-
-    adddress = db.Column( db.String, nullable = False ) 
-    apartment = db.Column( db.Integer, nullable=False ) 
-    state = db.Column( db.String( 50 ), nullable = False ) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
 
     def __repr__(self):
         return f"Properties('{ self.address }' )"
@@ -42,8 +41,8 @@ class Tenant( db.Model ):
     tenant_id = db.Column( db.Integer, primary_key=True ) # PRIMARY_KEY 
     first_name = db.Column( db.String, nullable=False )
     last_name = db.Column( db.String, nullable=False )
-    tenant_email = db.Column( db.String, unique=True, nullable=False )
-    deposit_amount = db.Column( db.Integer, nullable=False )
+    email = db.Column( db.String, unique=True, nullable=False )
+    deposit = db.Column( db.Integer, nullable=False )
     moveIn_date = db.Column( db.DateTime, default=datetime.utcnow, nullable=False )
 
     # TODO fix the move out date 
