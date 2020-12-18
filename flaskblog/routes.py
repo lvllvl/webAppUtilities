@@ -3,36 +3,38 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt 
-from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from flaskblog.models import User, Post
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PropertyForm, TenantForm
+from flaskblog.models import User, Properties, Tenant 
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
 @app.route("/home")
 def home():
-    posts = Post.query.all() 
-    return render_template('home.html', posts=posts)
+    # homes = Properties.query.all() 
+    # return render_template('home.html', home= homes ) 
+    return render_template( 'home.html' ) 
 
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
 
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+
     if current_user.is_authenticated: 
         return redirect( url_for( 'home' )) 
+    
     form = RegistrationForm()
+
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User( username = form.username.data, email = form.email.data, password=hashed_password )
+        user = User( username=form.username.data, email=form.email.data, password=hashed_password )
         db.session.add( user ) 
         db.session.commit() # add user to the database 
-
         flash(f'Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
 
+    return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -72,7 +74,6 @@ def save_picture( form_picutre ):
 
     return picture_fn
 
-
 @app.route("/account", methods=['GET', 'POST'] ) 
 @login_required
 def account():
@@ -96,22 +97,39 @@ def account():
     return render_template('account.html', title='Account', image_file= image_file, form=form )
 
 
-@app.route("/post/new", methods= ['GET', 'POST'] )
-@login_required
-def new_post():
-    form = PostForm()
+# @app.route("/property/new", methods= ['GET', 'POST'] )
+# @login_required
+# def add_new_property():
+#     form = PropertyForm()
 
-    if form.validate_on_submit():
-        post = Post( content = form.content.data, author = current_user ) 
-        db.session.add( post ) # add to database 
-        db.session.commit() 
-        flash( 'A new property has been added to your account!' , 'success' ) 
-        return redirect( url_for( 'home' ) )
+#     if form.validate_on_submit():
+#         new_house = Properties( address = form.address, 
+#                                     state=form.state, 
+#                                     author = current_user ) 
+#         db.session.add( new_house ) # add to database 
+#         db.session.commit() 
+#         flash( 'A new property has been added to your account!' , 'success' ) 
+#         return redirect( url_for( 'home' ) )
 
-        # id = db.Column( db.Integer, primary_key=True )
-        # address = db.Column( db.Integer, nullable=False ) 
-        # date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-        # user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-        # state = db.Column( db.String( 50 ), nullable = False ) 
+#     return render_template( 'create_property.html', title='Add Property', form=form)
 
-    return render_template('create_post.html', title='Add Property', form = form  )
+
+# @app.route("/tenant/new", methods= ['GET', 'POST'] )
+# @login_required
+# def add_tenant():
+    
+#     new_tenant = TenantForm() 
+#     if new_tenant.validate_on_submit(): 
+
+#         new_person = Tenant( first_name = new_tenant.first_name,
+#                              last_name = new_tenant.last_name, 
+#                              email= new_tenant.email,
+#                              moveIn_date = new_tenant.moveIn_date, 
+#                              phone_number= new_tenant.phone_number,
+#                              property_address = new_tenant.lives_at
+#                              )
+#         db.session.add( new_person ) 
+#         db.session.commit() 
+#         flash( 'You have successfully added a new tenant!', 'success' )
+#         return redirect( url_for( 'home') ) 
+#     return render_template( 'create_tenant.html', title='Add Tenant', form=new_tenant ) 

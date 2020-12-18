@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, SelectField, IntegerField, DateField
+from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from flaskblog.models import User
+from flaskblog.models import User, Properties, Tenant
+from datetime import date
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -26,14 +28,12 @@ class RegistrationForm(FlaskForm):
         if email: 
             raise ValidationError( 'That email is taken. Please choose a different one.' ) 
 
-
 class LoginForm(FlaskForm):
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
-
 
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
@@ -58,11 +58,12 @@ class UpdateAccountForm(FlaskForm):
 
 class PropertyForm( FlaskForm ): 
 
-    addressNo = IntegerField( label='Address Number', validators=[ DataRequired() ] ) 
-    streetName = StringField( label='Street Name', validators=[ DataRequired() ] )
+    # e.g., 7713 Street name 
+    address = StringField( label='Address', validators=[ DataRequired() ] ) 
     zipCode = IntegerField( label='Zip Code', validators=[ DataRequired() ] )
     apartmentNo = StringField( label='Apartment Number, ( n/a if not applicable ) ', validators=[ DataRequired() ] )
 
+    # TODO --> do you even need this feature?
     state = SelectField( 'State', choices = [ 'Alabama', 'Alaska', 'Arizona', 
                          'Arkansas', 'California', 'Colorado', 'Connecticut', 
                          'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
@@ -78,3 +79,30 @@ class PropertyForm( FlaskForm ):
                          )
 
     submit = SubmitField( 'Save' )
+
+# supports Tenant form
+def choice_query(): 
+    return Properties.query 
+
+class TenantForm( FlaskForm ): 
+
+    # address will be imported from Property information ... can be left blank 
+    lives_at = QuerySelectField( query_factory= choice_query , allow_blank = True, get_label= 'address' ) 
+    email = StringField( label = 'Email', validators=[ DataRequired() ] ) 
+
+    first_name = StringField( label='First Name', validators=[ DataRequired() ])
+    last_name = StringField( label='Last Name', validators=[ DataRequired() ])
+
+    phone_number = IntegerField( label='Phone number', validators=[ DataRequired() ])
+
+    moveIn_date = DateField('Move-In Date', default=date.today ) 
+    deposit = IntegerField( label = 'Deposit', validators=[ DataRequired() ] )
+
+    submit = SubmitField( 'Save' ) 
+
+    # Validate if tenant already exists in your system by checking email
+    def validate_email( self, email ): 
+        user_email =  Tenant.query.filter_by( tenant_email = email.data ).first() 
+        
+        if user_email: 
+            raise ValidationError( 'That tenant already exists in your database. Please review your list of existing tenants.' ) 
