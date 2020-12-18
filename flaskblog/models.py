@@ -19,9 +19,9 @@ class User( db.Model, UserMixin ):
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
-@login_manager.user_loader
-def load_property( prop_id ): 
-    return Properties.query.get( int( prop_id )) 
+# @login_manager.user_loader
+# def load_property( prop_id ): 
+#     return Properties.query.get( int( prop_id )) 
 
 class Properties( db.Model ):
 

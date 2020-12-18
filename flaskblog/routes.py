@@ -10,9 +10,8 @@ from flask_login import login_user, current_user, logout_user, login_required
 @app.route("/")
 @app.route("/home")
 def home():
-    # homes = Properties.query.all() 
-    # return render_template('home.html', home= homes ) 
-    return render_template( 'home.html' ) 
+    homes = Properties.query.all() 
+    return render_template( 'home.html', home= homes ) 
 
 @app.route("/about")
 def about():
@@ -96,40 +95,37 @@ def account():
     image_file = url_for( 'static', filename='profile_pics/' + current_user.image_file )
     return render_template('account.html', title='Account', image_file= image_file, form=form )
 
+@app.route("/property/new", methods= ['GET', 'POST'] )
+@login_required
+def add_new_property():
+    form = PropertyForm()
 
-# @app.route("/property/new", methods= ['GET', 'POST'] )
-# @login_required
-# def add_new_property():
-#     form = PropertyForm()
+    if form.validate_on_submit():
+        new_house = Properties( address = form.address, apartment=form.apartmentNo, state=form.state ) 
+        db.session.add( new_house )  
+        db.session.commit() # add to database
+        flash( 'A new property has been added to your account!' , 'success' ) 
+        return redirect( url_for( 'home' ) )
 
-#     if form.validate_on_submit():
-#         new_house = Properties( address = form.address, 
-#                                     state=form.state, 
-#                                     author = current_user ) 
-#         db.session.add( new_house ) # add to database 
-#         db.session.commit() 
-#         flash( 'A new property has been added to your account!' , 'success' ) 
-#         return redirect( url_for( 'home' ) )
-
-#     return render_template( 'create_property.html', title='Add Property', form=form)
+    return render_template( 'create_property.html', title='Add Property', form=form)
 
 
-# @app.route("/tenant/new", methods= ['GET', 'POST'] )
-# @login_required
-# def add_tenant():
+@app.route("/tenant/new", methods= ['GET', 'POST'] )
+@login_required
+def add_tenant():
     
-#     new_tenant = TenantForm() 
-#     if new_tenant.validate_on_submit(): 
+    new_tenant = TenantForm() 
+    if new_tenant.validate_on_submit(): 
 
-#         new_person = Tenant( first_name = new_tenant.first_name,
-#                              last_name = new_tenant.last_name, 
-#                              email= new_tenant.email,
-#                              moveIn_date = new_tenant.moveIn_date, 
-#                              phone_number= new_tenant.phone_number,
-#                              property_address = new_tenant.lives_at
-#                              )
-#         db.session.add( new_person ) 
-#         db.session.commit() 
-#         flash( 'You have successfully added a new tenant!', 'success' )
-#         return redirect( url_for( 'home') ) 
-#     return render_template( 'create_tenant.html', title='Add Tenant', form=new_tenant ) 
+        new_person = Tenant( first_name = new_tenant.first_name,
+                             last_name = new_tenant.last_name, 
+                             email= new_tenant.email,
+                             moveIn_date = new_tenant.moveIn_date, 
+                             phone_number= new_tenant.phone_number,
+                             property_address = new_tenant.lives_at
+                             )
+        db.session.add( new_person ) 
+        db.session.commit() 
+        flash( 'You have successfully added a new tenant!', 'success' )
+        return redirect( url_for( 'home') ) 
+    return render_template( 'create_tenant.html', title='Add Tenant', form=new_tenant ) 
