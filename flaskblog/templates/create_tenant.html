@@ -2,7 +2,6 @@
 {% block content %}
 <div class="content-section">
 
-
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
@@ -34,7 +33,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.first_name(class="form-control form-control-lg") }}
+                    {{ form.last_name(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
 
@@ -85,31 +84,31 @@
 
             <!-- Lives at -->
             <div class="form-group">
-                {{ form.lives_at.label(class="form-control-label") }}
-                {% if form.lives_at.errors %}
-                    {{ form.lives_at(class="form-control form-control-lg is-invalid") }}
+                {{ form.property_address.label(class="form-control-label") }}
+                {% if form.property_address.errors %}
+                    {{ form.property_address(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.lives_at.errors %}
+                        {% for error in form.property_address.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.lives_at(class="form-control form-control-lg") }}
+                    {{ form.property_address(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
 
-            <!-- apartmentNo -->
+            <!-- Deposit -->
             <div class="form-group">
-                {{ form.apartmentNo.label(class="form-control-label") }}
-                {% if form.apartmentNo.errors %}
-                    {{ form.apartmentNo(class="form-control form-control-lg is-invalid") }}
+                {{ form.deposit.label(class="form-control-label") }}
+                {% if form.deposit.errors %}
+                    {{ form.deposit(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.apartmentNo.errors %}
+                        {% for error in form.deposit.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.apartmentNo(class="form-control form-control-lg") }}
+                    {{ form.deposit(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
 

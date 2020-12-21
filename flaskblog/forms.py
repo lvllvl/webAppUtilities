@@ -77,17 +77,13 @@ class PropertyForm( FlaskForm ):
     #                      'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 
     #                      'Wisconsin', 'Wyoming' ], validate_choice=True 
     #                      )
-
     submit = SubmitField( 'Save' )
 
 # supports Tenant form
 def choice_query(): 
-    return Properties.query 
+    return Properties.query
 
 class TenantForm( FlaskForm ): 
-
-    # address will be imported from Property information ... can be left blank 
-    property_address = QuerySelectField( query_factory= choice_query , allow_blank = True, get_label= 'address' ) 
 
     first_name = StringField( label='First Name', validators=[ DataRequired() ])
     last_name = StringField( label='Last Name', validators=[ DataRequired() ])
@@ -95,13 +91,15 @@ class TenantForm( FlaskForm ):
     deposit = IntegerField( label='Deposit Amount', validators=[ DataRequired() ])
     moveIn_date = DateField('Move-In Date', default=date.today ) 
     phone_number = IntegerField( label='Phone number', validators=[ DataRequired() ])
-
+    
+    # address will be imported from Property information ... can be left blank 
+    property_address = QuerySelectField( query_factory= choice_query , allow_blank = False, get_label= 'address' ) 
 
     submit = SubmitField( 'Save' ) 
 
     # Validate if tenant already exists in your system by checking email
     def validate_email( self, email ): 
-        user_email =  Tenant.query.filter_by( tenant_email = email.data ).first() 
+        email =  Tenant.query.filter_by( email = email.data ).first() 
         
-        if user_email: 
+        if email: 
             raise ValidationError( 'That tenant already exists in your database. Please review your list of existing tenants.' ) 

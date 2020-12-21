@@ -4,7 +4,7 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from flaskblog import app, db, bcrypt 
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PropertyForm, TenantForm
-from flaskblog.models import User, Properties, Tenant 
+from flaskblog.models import User, Properties, Tenant, load_property 
 from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
@@ -103,34 +103,43 @@ def add_new_property():
     if form.validate_on_submit():
         new_house = Properties( address = form.address.data, apartment=form.apartmentNo.data, author=current_user ) 
 
-        # TODO delete this! 
-        print( 'print statement', new_house.address, new_house.user_id ) 
-
         db.session.add( new_house )  
         db.session.commit() # add to database
         flash( 'A new property has been added to your account!' , 'success' ) 
         return redirect( url_for( 'home' ) )
-
     return render_template( 'create_property.html', title='Add Property', form=form)
-
 
 @app.route("/tenant/new", methods= ['GET', 'POST'] )
 @login_required
 def add_tenant():
-    
-    new_tenant = TenantForm() 
-    if new_tenant.validate_on_submit(): 
 
-        new_person = Tenant( first_name = new_tenant.first_name,
-                             last_name = new_tenant.last_name, 
-                             email= new_tenant.email,
-                             deposit = new_tenant.deposit,
-                             moveIn_date = new_tenant.moveIn_date, 
-                             phone_number= new_tenant.phone_number,
-                             property_address = new_tenant.property_address
+    form = TenantForm() 
+  
+    if form.validate_on_submit(): 
+    
+        ps = Properties.query.filter_by()  
+        addy = 0
+
+        # TODO develop a faster way to find this information!!!! 
+        for home_ids in ps: 
+            if home_ids.address == form.property_address.data: 
+                addy = home_ids.property_id
+                break 
+                
+        new_person = Tenant( first_name = form.first_name.data,
+                             last_name = form.last_name.data, 
+                             email= form.email.data,
+                             deposit = form.deposit.data,
+                             moveIn_date = form.moveIn_date.data,
+                             # moveOut_date = form.moveOut_date.data, 
+                             phone_number= form.phone_number.data,
+                             property_address = addy, 
+                             author = current_user
                              )
+
         db.session.add( new_person ) 
         db.session.commit() 
         flash( 'You have successfully added a new tenant!', 'success' )
         return redirect( url_for( 'home') ) 
-    return render_template( 'create_tenant.html', title='Add Tenant', form=new_tenant ) 
+
+    return render_template( 'create_tenant.html', title='Add Tenant', form=form ) 
