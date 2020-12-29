@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+      <article class="media content-section">
+         <div class="media-body">
+            <div class="article-metadata">
+
+               <big class="article-title">{{ home.address }}</big>
+
+            </div>
+         
+            <!-- List all the roommates here  -->
+            {% print( 'Current Tenants: \n' ) %}
+            
+            {% for r in roommates %}
+                {% if home.property_id == r.property_address %}
+                <p>{{ r.first_name + " " + r.last_name }}</p>
+                {% endif %}
+            {% endfor %}
+         </div>
+      </article>
+{% endblock content %}      

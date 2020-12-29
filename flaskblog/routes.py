@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, abort
 from flaskblog import app, db, bcrypt 
 from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, PropertyForm, TenantForm
 from flaskblog.models import User, Properties, Tenant, load_property 
@@ -9,9 +9,10 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/")
 @app.route("/home")
-def home():
+def home(): 
+    roommates = Tenant.query.all() 
     homes = Properties.query.all() 
-    return render_template( 'home.html', home= homes ) 
+    return render_template( 'home.html', homes= homes, roommates=roommates ) 
 
 @app.route("/about")
 def about():
@@ -101,13 +102,51 @@ def add_new_property():
     form = PropertyForm()
 
     if form.validate_on_submit():
-        new_house = Properties( address = form.address.data, apartment=form.apartmentNo.data, author=current_user ) 
+        new_house = Properties( address = form.address.data,
+                                apartment=form.apartmentNo.data, 
+                                author=current_user ) 
 
         db.session.add( new_house )  
         db.session.commit() # add to database
         flash( 'A new property has been added to your account!' , 'success' ) 
         return redirect( url_for( 'home' ) )
-    return render_template( 'create_property.html', title='Add Property', form=form)
+    return render_template( 'create_property.html', title='Add Property', form=form, 
+                            legend='New Property')
+
+
+@app.route("/property/<int:prop_id>")
+@login_required
+def property_detail( prop_id ):
+    home = Properties.query.get_or_404( prop_id )
+    roommates = Tenant.query.all() 
+    return render_template( 'property_detail.html', title=home.address, home = home, roommates = roommates )
+
+
+@app.route("/property/<int:prop_id>/update", methods= ['GET', 'POST'])
+@login_required
+def property_update( prop_id ):
+    home = Properties.query.get_or_404( prop_id )
+    roommates = Tenant.query.all()
+    
+    if home.author != current_user:
+        abort( 403 )
+    
+    form = PropertyForm()
+    
+    if form.validate_on_submit():
+        home.address = form.address.data 
+        # home.zipCode = form.zipCode.data
+        home.apartment = form.apartmentNo.data 
+        db.session.commit()
+        flash("Your property has been updated!", "success")
+        return redirect( url_for('property_detail', prop_id=home.property_id))
+    
+    elif request.method == 'GET': 
+        form.address.data = home.address
+        form.apartmentNo.data = home.apartment
+        # form.zipCode.data = home.zipCode
+    
+    return render_template( 'create_property.html', title='Update Property', form=form, home=home, roommates=roommates, legend="Update Property") 
 
 @app.route("/tenant/new", methods= ['GET', 'POST'] )
 @login_required
@@ -117,15 +156,35 @@ def add_tenant():
   
     if form.validate_on_submit(): 
     
-        ps = Properties.query.filter_by()  
+        ps = Properties.query.all() 
+        assert ps is not None 
         addy = 0
+        form_address = str( form.property_address.data ) 
+        idx = form_address.find( '=' )
+        form_address = form_address[ idx+2 : -3 ]
+        idx = form_address.find( "'" )
+        
+        if idx == ( -1 ): 
+            form_address = int( form_address ) 
+        else: 
+            form_address = int( form_address[ idx+1: ] ) 
 
-        # TODO develop a faster way to find this information!!!! 
-        for home_ids in ps: 
-            if home_ids.address == form.property_address.data: 
-                addy = home_ids.property_id
-                break 
-                
+        for home in ps: 
+            assert home.property_id > 0 
+            if home.property_id == form_address: 
+                addy = home.property_id
+                break
+        assert addy > 0 
+        # # TODO develop a faster way to find this information!!!! 
+        # for home_ids in ps:
+
+        #     assert home_ids.property_id > 0
+
+        #     if home_ids.property_id == form.property_address.data: 
+        #         addy = home_ids.property_id
+        #         break 
+
+        # assert addy > 0                 
         new_person = Tenant( first_name = form.first_name.data,
                              last_name = form.last_name.data, 
                              email= form.email.data,
@@ -133,6 +192,8 @@ def add_tenant():
                              moveIn_date = form.moveIn_date.data,
                              # moveOut_date = form.moveOut_date.data, 
                              phone_number= form.phone_number.data,
+                            #  prop_id = addy, 
+                            #  property_address = addy, 
                              property_address = addy, 
                              author = current_user
                              )
@@ -142,4 +203,4 @@ def add_tenant():
         flash( 'You have successfully added a new tenant!', 'success' )
         return redirect( url_for( 'home') ) 
 
-    return render_template( 'create_tenant.html', title='Add Tenant', form=form ) 
+    return render_template( 'create_tenant.html', title='Add Tenant', form= form) 
