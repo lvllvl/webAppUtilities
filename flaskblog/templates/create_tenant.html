@@ -67,6 +67,21 @@
                 {% endif %}
             </div>
 
+            <!-- MoveOut_date -->
+            <div class="form-group"
+                {{ form.moveOut_date.label(class="form-control-label") }}
+                {% if form.moveOut_date.errors %}
+                    {{ form.moveOut_date(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.moveOut_date.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.moveOut_date(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
             <!-- Phone Number -->
             <div class="form-group"
                 {{ form.phone_number.label(class="form-control-label") }}

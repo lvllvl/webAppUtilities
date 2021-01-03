@@ -7,20 +7,19 @@
                <big class="article-title">{{ home.address }}</big>
                {% if home.author == current_user %}
                 <div>
-                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('property_update', prop_id=home.property_id) }}">Update</a>
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('tenant_update', tenant_id=roommate.id) }}">Update</a>
                     <button type="button" class=btn btn-danger btn-sm m-1 data-toggle="modal" data-target="#deleteModal">Delete</button>
                 </div>
                {% endif %}
             </div>
          
-            <!-- List all the roommates here  -->
-            {% print( 'Current Tenants: \n' ) %}
-            
-            {% for r in roommates %}
-                {% if home.property_id == r.property_address %}
-                <p>{{ r.first_name + " " + r.last_name }}</p>
-                {% endif %}
-            {% endfor %}
+            <!-- List roommate details here  -->
+
+            <p>{{ roommate.first_name + " " + roommate.last_name }}</p>
+            <p>{{ roommate.email  }}</p>
+            <p>{{ roommate.deposit }}</p>
+            <p>{{ roommate.moveIn_date }}</p>
+
          </div>
       </article>
     <!-- Modal -->
@@ -28,18 +27,21 @@
         <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="deleteModalLabel">Delete property?</h5>
+            <h5 class="modal-title" id="deleteModalLabel">Delete tenant?</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <form action="{{ url_for( 'delete_property', prop_id=home.property_id) }}" method="POST">
+            <form action="{{ url_for( 'delete_tenant', tenant_id=roommate.id ) }}" method="POST">
                 <input class="btn btn-danger" type="submit" value="Delete">
             </form>
             </div>
         </div>
         </div>
     </div>
-{% endblock content %}      
+{% endblock content %}    
+
+
+ 

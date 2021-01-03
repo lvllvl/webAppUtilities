@@ -104,6 +104,7 @@ def add_new_property():
     if form.validate_on_submit():
         new_house = Properties( address = form.address.data,
                                 apartment=form.apartmentNo.data, 
+                                zipCode = form.zipCode.data, 
                                 author=current_user ) 
 
         db.session.add( new_house )  
@@ -121,7 +122,6 @@ def property_detail( prop_id ):
     roommates = Tenant.query.all() 
     return render_template( 'property_detail.html', title=home.address, home = home, roommates = roommates )
 
-
 @app.route("/property/<int:prop_id>/update", methods= ['GET', 'POST'])
 @login_required
 def property_update( prop_id ):
@@ -135,7 +135,7 @@ def property_update( prop_id ):
     
     if form.validate_on_submit():
         home.address = form.address.data 
-        # home.zipCode = form.zipCode.data
+        home.zipCode = form.zipCode.data
         home.apartment = form.apartmentNo.data 
         db.session.commit()
         flash("Your property has been updated!", "success")
@@ -144,9 +144,95 @@ def property_update( prop_id ):
     elif request.method == 'GET': 
         form.address.data = home.address
         form.apartmentNo.data = home.apartment
-        # form.zipCode.data = home.zipCode
+        form.zipCode.data = home.zipCode
     
     return render_template( 'create_property.html', title='Update Property', form=form, home=home, roommates=roommates, legend="Update Property") 
+
+
+@app.route("/property/<int:prop_id>/delete", methods= ['POST'])
+@login_required
+def delete_property( prop_id ):
+    
+    home = Properties.query.get_or_404( prop_id )
+    roommates = Tenant.query.all()
+    
+    if home.author != current_user:
+        abort( 403 )
+    
+    form = PropertyForm()
+    db.session.delete( home )
+    db.session.commit() 
+    flash("Your property has been deleted!", "success")
+    return redirect( url_for( 'home' )) 
+
+
+@app.route("/tenant/<int:tenant_id>")
+@login_required
+def tenant_detail( tenant_id ):
+    roommate = Tenant.query.get_or_404( tenant_id )
+    home = Properties.query.get_or_404( roommate.id ) # get the speciic home id
+    return render_template( 'tenant_detail.html', title=home.address, home = home, roommate = roommate )
+
+@app.route("/tenant/<int:tenant_id>/update", methods= ['GET', 'POST'])
+@login_required
+def tenant_update( tenant_id ):
+    roommate = Tenant.query.get_or_404( tenant_id )
+    home = Properties.query.get_or_404( roommate.id ) 
+    
+    if home.author != current_user:
+        abort( 403 )
+    
+    form = TenantForm()
+    
+    # TODO add move out date to your form AND database  
+    if form.validate_on_submit():
+        roommate.first_name = form.first_name.data  
+        roommate.last_name = form.last_name.data  
+        roommate.email = form.email.data  
+        roommate.deposit = form.deposit.data 
+        roommate.phone_number = form.phone_number.data 
+
+        # get property id info 
+        ps = Properties.query.all() 
+        assert ps is not None 
+        addy = 0
+
+        form_address = str( form.property_address.data ) 
+        idx = form_address.find( '=' )
+        form_address = form_address[ idx+2 : -3 ]
+        idx = form_address.find( "'" )
+        
+        if idx == ( -1 ): 
+            form_address = int( form_address ) 
+        else: 
+            form_address = int( form_address[ idx+1: ] ) 
+
+        for home in ps: 
+            assert home.property_id > 0 
+            if home.property_id == form_address: 
+                addy = home.property_id
+                break
+        assert addy > 0 
+        roommate.property_address = addy 
+        
+        # COMMIT HERE 
+        db.session.commit()
+        flash("This tenant's information has been updated!", "success")
+        return redirect( url_for('tenant_detail', tenant_id = roommate.id))
+    
+    elif request.method == 'GET': 
+
+        form.first_name.data = roommate.first_name
+        form.last_name.data = roommate.last_name
+        form.email.data = roommate.email
+        form.deposit.data = roommate.deposit
+        form.phone_number.data = roommate.phone_number
+        form.moveIn_date.data = roommate.moveIn_date
+        form.moveOut_date.data = roommate.moveOut_date
+        form.phone_number.data = roommate.phone_number
+        form.property_address.data = home.address 
+    
+    return render_template( 'create_tenant.html', title='Update Tenant Info', form=form, home=home, roommate=roommate, legend="Update Tenant Info") 
 
 @app.route("/tenant/new", methods= ['GET', 'POST'] )
 @login_required
@@ -158,7 +244,9 @@ def add_tenant():
     
         ps = Properties.query.all() 
         assert ps is not None 
+
         addy = 0
+
         form_address = str( form.property_address.data ) 
         idx = form_address.find( '=' )
         form_address = form_address[ idx+2 : -3 ]
@@ -190,7 +278,7 @@ def add_tenant():
                              email= form.email.data,
                              deposit = form.deposit.data,
                              moveIn_date = form.moveIn_date.data,
-                             # moveOut_date = form.moveOut_date.data, 
+                             moveOut_date = form.moveOut_date.data, 
                              phone_number= form.phone_number.data,
                             #  prop_id = addy, 
                             #  property_address = addy, 
@@ -204,3 +292,21 @@ def add_tenant():
         return redirect( url_for( 'home') ) 
 
     return render_template( 'create_tenant.html', title='Add Tenant', form= form) 
+
+
+
+@app.route("/tenant/<int:tenant_id>/delete", methods= ['POST'])
+@login_required
+def delete_tenant( tenant_id ):
+    
+    roommate = Tenant.query.get_or_404( tenant_id )
+    home = Properties.query.all()
+
+    if home.author != current_user:
+        abort( 403 )
+    
+    form = PropertyForm()
+    db.session.delete( roommate )
+    db.session.commit() 
+    flash("Your tenant has been deleted!", "success")
+    return redirect( url_for( 'home' )) 

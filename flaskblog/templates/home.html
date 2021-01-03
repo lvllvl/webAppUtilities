@@ -4,18 +4,19 @@
       <article class="media content-section">
          <div class="media-body">
             <div class="article-metadata">
-
                <!-- <big class="text-muted">{{ h.address }}</big> -->
                <a class="mr-2" href="{{ url_for( 'property_detail', prop_id=h.property_id)}}">{{ h.address }}</a>
-
             </div>
-         
          <!-- List all the roommates here  -->
-         {% print( 'Current Tenants: \n' ) %}
+         {% print( 'Current Tenants: ' ) %}
+         <br> 
          
          {% for r in roommates %}
             {% if h.property_id == r.property_address %}
-               <p>{{ r.first_name + " " + r.last_name }}</p>
+
+
+               <a class="mr-2" href="{{ url_for( 'tenant_detail', tenant_id=r.id)}}">{{ r.first_name + " "+ r.last_name }}</a>
+               <br>
             {% endif %}
          {% endfor %}
          </div>

@@ -29,8 +29,7 @@ class Properties( db.Model ):
     address = db.Column( db.String, nullable = False ) 
     apartment = db.Column( db.String, nullable=False ) 
     
-    # TODO --> add zipCode variable ... START TRACKING THIS !!!
-
+    zipCode = db.Column( db.Integer, nullable = False ) 
     # TODO do we need landlord_id if we have backref?? 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
     tenants = db.relationship( 'Tenant', backref='prop_id', lazy=True )
@@ -45,11 +44,9 @@ class Tenant( db.Model ):
     email = db.Column( db.String, unique=True, nullable=False )
     deposit = db.Column( db.Integer, nullable=False )
     moveIn_date = db.Column( db.DateTime, default=datetime.utcnow, nullable=False )
-
-    # TODO fix the move out date 
-    # moveOut_date = db.Column( db.DateTime, default='yyyy-mm-dd', nullable=True )
-    # TODO should this be a double instead of an integer????? 
+    moveOut_date = db.Column( db.DateTime, default='9099-09-09', nullable=True )
     phone_number = db.Column( db.Integer, nullable = False ) 
+    
     # TODO --> is this foreign key formatted correctly?  
     property_address = db.Column( db.Integer, db.ForeignKey( 'properties.property_id' ), nullable=False ) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
